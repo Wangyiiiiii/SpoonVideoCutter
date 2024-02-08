@@ -1,0 +1,9 @@
+This software uses libraries from the FFmpeg project under the LGPLv2.1
+-----------------------------------------------------------------------------
+FFmpeg 64-bit shared Windows build from www.gyan.dev
+
+Version: 6.0-full_build-www.gyan.dev
+
+License: GPL v3
+
+Source Code: https://github.com/FFmpeg/FFmpeg/commit/ea3d24bbe3
