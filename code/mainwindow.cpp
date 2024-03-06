@@ -93,7 +93,7 @@ void MainWindow::videoProcess()
     QProcess *pFFmpeg = new QProcess(this);
     QStringList cutCommandList, concatCommandList, segmentNames;
     QString ffmpeg_dir = QDir::currentPath() + "/ffmpeg.exe";
-//    QString ffmpeg_dir = "ffmpeg";
+
     cutCommandList << ffmpeg_dir << "-ss" << "<startTime>"
                    << "-to" << "<endTime>" << "-accurate_seek"
                    << "-i" << srcStr << "-avoid_negative_ts" << "1"
@@ -112,9 +112,8 @@ void MainWindow::videoProcess()
         cutCommandList[2] = duration2str(timeSlices.at(i).first);
         cutCommandList[4] = duration2str(timeSlices.at(i).second);
         cutCommandList[12] = segmentName;
-        qDebug().noquote() << cutCommandList.join(' ');
         QStringList cmdList;
-        cmdList << "/c" << cutCommandList.join(" ");
+        cmdList << "/c" << cutCommandList;
         pFFmpeg->start("cmd", cmdList);
         bool state = pFFmpeg->waitForStarted(VERYLONGTIME);
         if(!state)
@@ -153,7 +152,7 @@ void MainWindow::videoProcess()
     }
     QStringList cmdList;
     concatCommandList[6] = srcPath + '/' + "segList.txt";
-    cmdList << "/c" << concatCommandList.join(" ");
+    cmdList << "/c" << concatCommandList;
     pFFmpeg->start("cmd", cmdList);
     bool state = pFFmpeg->waitForStarted(VERYLONGTIME);
     if(!state)
