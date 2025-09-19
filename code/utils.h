@@ -26,7 +26,7 @@ QString duration2str(int64_t duration);
 int64_t str2duration(QString timeStr);
 
 /**
- * Detect if two segments have overlapping area
+ * Detect whether two segments have overlapping area
  * @param segment1
  * @param segment2
  * @return true on has overlapping area, false on has not
@@ -42,7 +42,8 @@ bool hasOverlap(QPair<int64_t, int64_t> segment1, QPair<int64_t, int64_t> segmen
 bool compareSlice(QPair<int64_t, int64_t> slice1, QPair<int64_t, int64_t> slice2);
 
 /**
- * Process ffmpeg api function
+ * Process ffmpeg api function，print ffmpeg error message
  * @param ret
+ * @return success on 1; failure on other number
  */
-void processErrorMsg(int ret);
+int processErrorMsg(int ret);

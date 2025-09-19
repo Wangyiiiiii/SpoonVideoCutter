@@ -25,7 +25,7 @@ QString duration2str(int64_t duration)
 int64_t str2duration(QString timeStr)
 {
     int64_t rVal = 0;
-    QRegularExpression reTimeStr(R"(\d{1,}:[0-5][0-9]:[0-5][0-9].\d{3})");
+    static QRegularExpression reTimeStr(R"(\d{1,}:[0-5][0-9]:[0-5][0-9].\d{3})");
     QRegularExpressionMatch match = reTimeStr.match(timeStr);
 
     if(!match.hasMatch())
@@ -66,9 +66,9 @@ bool compareSlice(QPair<int64_t, int64_t> slice1, QPair<int64_t, int64_t> slice2
     return (slice1.first < slice2.first);
 }
 
-void processErrorMsg(int ret)
+int processErrorMsg(int ret)
 {
-    if (0 > ret)
+    if (ret < 0)
     {
         char errMsg[1024];
         av_strerror(ret, errMsg, 1024);
@@ -76,6 +76,10 @@ void processErrorMsg(int ret)
         errMsgBox->setText(errMsg);
         errMsgBox->exec();
         delete errMsgBox;
-        exit(0);
+        return ret;
+    }
+    else
+    {
+        return 1;
     }
 }

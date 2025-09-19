@@ -9,6 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     this->setWindowIcon(QIcon(":/img/Resources/spoon.png"));
+    this->setAcceptDrops(true);
     ui->stackedWidget->setCurrentIndex(0);
     ui->tableWidget->setColumnWidth(0, 650);
     ui->tableWidget->setColumnWidth(1, 50);
@@ -33,14 +34,7 @@ void MainWindow::on_pushButton_clicked()
     {
         return;
     }
-
-    currentFmtContext = avformat_alloc_context();
-    processErrorMsg(avformat_open_input(&currentFmtContext, srcStr.toUtf8().data(), NULL, NULL));
-    processErrorMsg(avformat_find_stream_info(currentFmtContext, NULL));
-
-    ui->label->setText(srcStr.right(srcStr.size() - srcStr.lastIndexOf('/') - 1));
-    ui->label_2->setText("视频时长:" + duration2str(currentFmtContext->duration));
-    ui->stackedWidget->setCurrentIndex(1);
+    loadVideo();
 }
 
 void MainWindow::on_pushButton_2_clicked()
@@ -63,6 +57,37 @@ void MainWindow::delete_handler()
     numOfRows--;
     timeSlices.removeAt(deleteBtn->toolTip().toInt());
     delete deleteBtn;
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent* event)
+{
+    if(ui->stackedWidget->currentIndex() != 0)
+    {
+        return;
+    }
+    if(!event->mimeData()->hasUrls())
+    {
+        return;
+    }
+    QList<QUrl> urls = event->mimeData()->urls();
+    if(urls.size() != 1)
+    {
+        return;
+    }
+    QFileInfo file(urls.at(0).toLocalFile());
+    if(file.isDir())
+    {
+        return;
+    }
+    event->acceptProposedAction();
+}
+
+void MainWindow::dropEvent(QDropEvent* event)
+{
+    QList<QUrl> urls = event->mimeData()->urls();
+    QFileInfo file(urls.at(0).toLocalFile());
+    srcStr = file.filePath();
+    loadVideo();
 }
 
 void MainWindow::setTimeSliceTable()
@@ -148,6 +173,8 @@ void MainWindow::videoProcess()
     else
     {
         QMessageBox::warning(this, "提示", "合并视频片段错误：建立合并列表时出错");
+        delete pFFmpeg;
+        pFFmpeg = nullptr;
         return;
     }
     QStringList cmdList;
@@ -198,6 +225,27 @@ void MainWindow::resetState()
     deleteBtns.clear();
     ui->tableWidget->clear();
     ui->stackedWidget->setCurrentIndex(0);
+}
+
+void MainWindow::loadVideo()
+{
+    int result = 0;
+    currentFmtContext = avformat_alloc_context();
+
+    result = processErrorMsg(avformat_open_input(&currentFmtContext, srcStr.toUtf8().data(), NULL, NULL));
+    if(result != 1)
+    {
+        return;
+    }
+    result = processErrorMsg(avformat_find_stream_info(currentFmtContext, NULL));
+    if(result != 1)
+    {
+        return;
+    }
+
+    ui->label->setText(srcStr.right(srcStr.size() - srcStr.lastIndexOf('/') - 1));
+    ui->label_2->setText("视频时长:" + duration2str(currentFmtContext->duration));
+    ui->stackedWidget->setCurrentIndex(1);
 }
 
 void MainWindow::on_addSlice(QString startTimeStr, QString endTimeStr)

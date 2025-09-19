@@ -1,10 +1,12 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QDragEnterEvent>
 #include <QFile>
 #include <QFileDialog>
 #include <QMainWindow>
 #include <QMessageBox>
+#include <QMimeData>
 #include <QProcess>
 extern "C"{
 #include <libavcodec/avcodec.h>
@@ -34,6 +36,8 @@ private slots:
     void on_pushButton_3_clicked();
     void on_pushButton_4_clicked();
     void delete_handler();
+    void dragEnterEvent(QDragEnterEvent* event);
+    void dropEvent(QDropEvent* event);
 
 private:
     Ui::MainWindow *ui;
@@ -47,5 +51,8 @@ private:
     void setTimeSliceTable();
     void videoProcess();
     void resetState();
+    void loadVideo(); //当用户完成以下动作之一后调用
+                      //1.拖拽文件
+                      //2.通过文件选择框选择文件
 };
 #endif // MAINWINDOW_H
