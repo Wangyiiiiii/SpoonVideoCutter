@@ -254,14 +254,14 @@ void MainWindow::videoProcess()
         bool state = pFFmpeg->waitForStarted(VERYLONGTIME);
         if (!state)
         {
-            QMessageBox::warning(this, "提示", "剪切片段失败啦");
+            QMessageBox::warning(nullptr, "提示", "剪切片段失败啦");
             resetState();
             return;
         }
         state = pFFmpeg->waitForFinished(VERYLONGTIME);
         if (!state)
         {
-            QMessageBox::warning(this, "提示", "剪切片段失败啦");
+            QMessageBox::warning(nullptr, "提示", "剪切片段失败啦");
             resetState();
             return;
         }
@@ -283,7 +283,7 @@ void MainWindow::videoProcess()
     }
     else
     {
-        QMessageBox::warning(this, "提示", "合并视频片段错误：建立合并列表时出错");
+        QMessageBox::warning(nullptr, "提示", "合并视频片段错误：建立合并列表时出错");
         delete pFFmpeg;
         pFFmpeg = nullptr;
         return;
@@ -295,14 +295,14 @@ void MainWindow::videoProcess()
     bool state = pFFmpeg->waitForStarted(VERYLONGTIME);
     if (!state)
     {
-        QMessageBox::warning(this, "提示", "合并片段失败啦");
+        QMessageBox::warning(nullptr, "提示", "合并片段失败啦");
         resetState();
         return;
     }
     state = pFFmpeg->waitForFinished(VERYLONGTIME);
     if (!state)
     {
-        QMessageBox::warning(this, "提示", "合并片段失败啦");
+        QMessageBox::warning(nullptr, "提示", "合并片段失败啦");
         resetState();
         return;
     }
@@ -315,7 +315,7 @@ void MainWindow::videoProcess()
     {
         QFile::remove(segmentNames.at(i));
     }
-    QMessageBox::information(this, "提示", "剪切完毕~");
+    QMessageBox::information(nullptr, "提示", "剪切完毕~");
     resetState();
     return;
 }
@@ -365,7 +365,7 @@ void MainWindow::on_addSlice(QString startTimeStr, QString endTimeStr)
     int64_t endTimeInt = str2duration(endTimeStr);
     if (startTimeInt == -1 or endTimeInt == -1)
     {
-        QMessageBox::warning(this, "提示", "时间格式出错啦");
+        QMessageBox::warning(nullptr, "提示", "时间格式出错啦");
         return;
     }
     QPair<int64_t, int64_t> curSlice;
@@ -375,7 +375,7 @@ void MainWindow::on_addSlice(QString startTimeStr, QString endTimeStr)
     {
         if (hasOverlap(timeSlices.at(i), curSlice))
         {
-            QMessageBox::warning(this, "提示", "当前添加的片段与已添加片段存在重复~");
+            QMessageBox::warning(nullptr, "提示", "当前添加的片段与已添加片段存在重复~");
             return;
         }
     }
@@ -390,7 +390,7 @@ void MainWindow::on_pushButton_3_clicked()
 {
     if (0 == timeSlices.length())
     {
-        QMessageBox::warning(this, "提示", "最少也要有一个视频片段哦~");
+        QMessageBox::warning(nullptr, "提示", "最少也要有一个视频片段哦~");
         return;
     }
     ui->stackedWidget->setCurrentIndex(2);
@@ -403,7 +403,7 @@ void MainWindow::on_pushButton_4_clicked()
     dstStr = QFileDialog::getSaveFileName(this, "选择输出目录", "", filter);
     if (dstStr == "")
     {
-        QMessageBox::warning(this, "提示", "保存目录出错啦");
+        QMessageBox::warning(nullptr, "提示", "保存目录出错啦");
         return;
     }
     videoProcess();

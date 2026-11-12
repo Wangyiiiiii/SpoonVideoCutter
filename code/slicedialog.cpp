@@ -73,7 +73,7 @@ void SliceDialog::on_pushButton_clicked()
         number = curEdit->text().toInt(&ok);
         if (!ok or number < 0)
         {
-            QMessageBox::warning(this, "提示", "时间格式出错啦！");
+            QMessageBox::warning(nullptr, "提示", "时间格式出错啦！");
             return;
         }
         if (curEdit->objectName().contains("Hour"))
@@ -84,7 +84,7 @@ void SliceDialog::on_pushButton_clicked()
         {
             if (!ok or number >= 60)
             {
-                QMessageBox::warning(this, "提示", "时间格式出错啦！");
+                QMessageBox::warning(nullptr, "提示", "时间格式出错啦！");
                 return;
             }
         }
@@ -92,7 +92,7 @@ void SliceDialog::on_pushButton_clicked()
         {
             if (!ok or number >= 60)
             {
-                QMessageBox::warning(this, "提示", "时间格式出错啦！");
+                QMessageBox::warning(nullptr, "提示", "时间格式出错啦！");
                 return;
             }
         }
@@ -114,17 +114,17 @@ void SliceDialog::on_pushButton_clicked()
 
     if (str2duration(startTimeStr) == -1 or str2duration(endTimeStr) == -1)
     {
-        QMessageBox::warning(this, "提示", "时间格式出错啦！");
+        QMessageBox::warning(nullptr, "提示", "时间格式出错啦！");
         return;
     }
     if (str2duration(endTimeStr) > fileDuration)
     {
-        QMessageBox::warning(this, "提示", "结束时间应该不能超过文件总时长哦！");
+        QMessageBox::warning(nullptr, "提示", "结束时间应该不能超过文件总时长哦！");
         return;
     }
     if (str2duration(startTimeStr) >= str2duration(endTimeStr))
     {
-        QMessageBox::warning(this, "提示", "开始时间应该比结束时间更小哦！");
+        QMessageBox::warning(nullptr, "提示", "开始时间应该比结束时间更小哦！");
         return;
     }
 
