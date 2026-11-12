@@ -1,12 +1,12 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#endif // UTILS_H
-
 #include <QMessageBox>
 #include <QRegularExpression>
 #include <QString>
-extern "C"{
+
+extern "C"
+{
 #include <libavutil/error.h>
 #include <libavutil/avutil.h>
 }
@@ -47,3 +47,5 @@ bool compareSlice(QPair<int64_t, int64_t> slice1, QPair<int64_t, int64_t> slice2
  * @return success on 1; failure on other number
  */
 int processErrorMsg(int ret);
+
+#endif // UTILS_H

@@ -6,7 +6,8 @@
 #include <QString>
 #include "utils.h"
 
-namespace Ui {
+namespace Ui
+{
 class SliceDialog;
 }
 
@@ -24,6 +25,7 @@ private slots:
 private:
     Ui::SliceDialog *ui;
     int fileDuration;
+
 signals:
     void addSlice(QString startTime, QString endTime);
 };

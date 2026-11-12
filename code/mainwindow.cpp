@@ -10,9 +10,97 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     this->setWindowIcon(QIcon(":/img/Resources/spoon.png"));
     this->setAcceptDrops(true);
+    this->setMinimumSize(780, 560);
+    this->setStyleSheet(R"(
+        QMainWindow {
+            background: #111827;
+        }
+        QWidget#centralwidget {
+            background: transparent;
+        }
+        QWidget#page,
+        QWidget#page_2,
+        QWidget#page_3 {
+            background: #1f2937;
+            border: 1px solid #374151;
+        }
+        QLabel {
+            color: #e5e7eb;
+        }
+        QLabel#label,
+        QLabel#label_2 {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        QPushButton {
+            background: #2563eb;
+            border: 1px solid #2563eb;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 600;
+            padding: 10px 18px;
+            min-height: 42px;
+        }
+        QPushButton:hover {
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+        }
+        QPushButton:pressed {
+            background: #1e40af;
+            border-color: #1e40af;
+        }
+        QTableWidget {
+            background: #111827;
+            border: 1px solid #374151;
+            gridline-color: #374151;
+            selection-background-color: #1e3a5f;
+            selection-color: #f9fafb;
+            alternate-background-color: #1f2937;
+        }
+        QTableWidget::item {
+            padding: 8px;
+            color: #e5e7eb;
+            border: none;
+        }
+        QTableWidget::item:selected {
+            background: #1e3a5f;
+            color: #f9fafb;
+        }
+        QHeaderView::section {
+            background: #1f2937;
+            border: none;
+            color: #cbd5e1;
+            font-weight: 600;
+        }
+        QLineEdit {
+            border: 1px solid #4b5563;
+            background: #111827;
+            padding: 6px 10px;
+            color: #f3f4f6;
+        }
+        QLineEdit:focus {
+            border: 1px solid #60a5fa;
+        }
+        QSpinBox, QDoubleSpinBox {
+            border: 1px solid #4b5563;
+            background: #111827;
+            color: #f3f4f6;
+            padding: 4px 8px;
+        }
+    )");
+
     ui->stackedWidget->setCurrentIndex(0);
     ui->tableWidget->setColumnWidth(0, 650);
     ui->tableWidget->setColumnWidth(1, 50);
+    ui->tableWidget->setAlternatingRowColors(true);
+    ui->tableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->tableWidget->setSelectionMode(QAbstractItemView::NoSelection);
+    ui->tableWidget->setFocusPolicy(Qt::NoFocus);
+    ui->pushButton_2->setStyleSheet("font-size: 13px; padding: 4px 10px; min-height: 0;");
+    ui->pushButton_2->setFixedSize(132, 36);
+    ui->pushButton_3->setStyleSheet("font-size: 13px; padding: 4px 10px; min-height: 0;");
+    ui->pushButton_3->setFixedSize(92, 36);
+
     currentFmtContext = NULL;
     numOfRows = 0;
 }
@@ -30,7 +118,7 @@ void MainWindow::on_pushButton_clicked()
     QString filter = "视频文件(*.mp4;*.mkv);;全部文件(*.*)";
     srcStr = QFileDialog::getOpenFileName(this, "请选择视频文件", "", filter);
 
-    if(srcStr == "")
+    if (srcStr == "")
     {
         return;
     }
@@ -46,10 +134,10 @@ void MainWindow::on_pushButton_2_clicked()
 
 void MainWindow::delete_handler()
 {
-    QPushButton* deleteBtn = (QPushButton*)sender();
-    for(int i=deleteBtn->toolTip().toInt()+1; i<deleteBtns.size(); i++)
+    QPushButton *deleteBtn = (QPushButton *)sender();
+    for (int i = deleteBtn->toolTip().toInt() + 1; i < deleteBtns.size(); i++)
     {
-        deleteBtns.at(i)->setToolTip(QString::number(deleteBtns.at(i)->toolTip().toInt()-1));
+        deleteBtns.at(i)->setToolTip(QString::number(deleteBtns.at(i)->toolTip().toInt() - 1));
     }
     ui->tableWidget->removeCellWidget(deleteBtn->toolTip().toInt(), 1);
     ui->tableWidget->removeRow(deleteBtn->toolTip().toInt());
@@ -59,33 +147,40 @@ void MainWindow::delete_handler()
     delete deleteBtn;
 }
 
-void MainWindow::dragEnterEvent(QDragEnterEvent* event)
+void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
-    if(ui->stackedWidget->currentIndex() != 0)
+    if (ui->stackedWidget->currentIndex() != 0)
     {
         return;
     }
-    if(!event->mimeData()->hasUrls())
+    if (!event->mimeData()->hasUrls())
     {
         return;
     }
     QList<QUrl> urls = event->mimeData()->urls();
-    if(urls.size() != 1)
+    if (urls.size() != 1)
     {
         return;
     }
     QFileInfo file(urls.at(0).toLocalFile());
-    if(file.isDir())
+    if (file.isDir())
     {
         return;
     }
     event->acceptProposedAction();
 }
 
-void MainWindow::dropEvent(QDropEvent* event)
+void MainWindow::dropEvent(QDropEvent *event)
 {
     QList<QUrl> urls = event->mimeData()->urls();
     QFileInfo file(urls.at(0).toLocalFile());
+    QString suffix = file.suffix().toLower();
+    if (suffix != "mp4" && suffix != "mkv")
+    {
+        QMessageBox::warning(nullptr, "提示", "请选择 MP4 或 MKV 格式的视频文件");
+        return;
+    }
+
     srcStr = file.filePath();
     loadVideo();
 }
@@ -95,15 +190,31 @@ void MainWindow::setTimeSliceTable()
     ui->tableWidget->clearContents();
     deleteBtns.clear();
     ui->tableWidget->setRowCount(50 + numOfRows);
-    for(int i=0; i<timeSlices.count(); i++)
+    for (int i = 0; i < timeSlices.count(); i++)
     {
         QString tempText = "";
         tempText = duration2str(timeSlices.at(i).first) + " - " + duration2str(timeSlices.at(i).second);
         ui->tableWidget->setItem(i, 0, new QTableWidgetItem(tempText));
-        QPushButton* deleteBtn = new QPushButton(this);
+        QPushButton *deleteBtn = new QPushButton(this);
         deleteBtn->setText("删除");
         deleteBtn->setToolTip(QString::number(i));
         deleteBtn->setToolTipDuration(2000);
+        deleteBtn->setStyleSheet(R"(
+            QPushButton {
+                background: #b91c1c;
+                border: 1px solid #b91c1c;
+                color: white;
+                font-size: 12px;
+                font-weight: 500;
+                padding: 0 6px;
+                min-height: 0px;
+            }
+            QPushButton:hover {
+                background: #991b1b;
+                border-color: #991b1b;
+            }
+        )");
+        deleteBtn->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         deleteBtns << deleteBtn;
         ui->tableWidget->setCellWidget(i, 1, deleteBtn);
         connect(deleteBtn, &QPushButton::clicked, this, &MainWindow::delete_handler);
@@ -129,7 +240,7 @@ void MainWindow::videoProcess()
     ui->stackedWidget->setCurrentIndex(3);
 
     //-------------------------step 1:cut all the video segments-------------------------
-    for(int i=0; i<timeSlices.length(); i++)
+    for (int i = 0; i < timeSlices.length(); i++)
     {
         QString segmentName = "segment" + QString::number(i) + srcSuffix;
         segmentName = dstPath + '/' + segmentName;
@@ -141,14 +252,14 @@ void MainWindow::videoProcess()
         cmdList << "/c" << cutCommandList;
         pFFmpeg->start("cmd", cmdList);
         bool state = pFFmpeg->waitForStarted(VERYLONGTIME);
-        if(!state)
+        if (!state)
         {
             QMessageBox::warning(this, "提示", "剪切片段失败啦");
             resetState();
             return;
         }
         state = pFFmpeg->waitForFinished(VERYLONGTIME);
-        if(!state)
+        if (!state)
         {
             QMessageBox::warning(this, "提示", "剪切片段失败啦");
             resetState();
@@ -159,9 +270,9 @@ void MainWindow::videoProcess()
     //-------------------------step 2:put the segments together-------------------------
     QFile f(srcPath + '/' + "segList.txt");
     bool ok = f.open(QIODevice::ReadWrite);
-    if(ok)
+    if (ok)
     {
-        for(int i=0; i<segmentNames.length(); i++)
+        for (int i = 0; i < segmentNames.length(); i++)
         {
             QString content;
             content = "file \'" + segmentNames.at(i) + "\'";
@@ -182,14 +293,14 @@ void MainWindow::videoProcess()
     cmdList << "/c" << concatCommandList;
     pFFmpeg->start("cmd", cmdList);
     bool state = pFFmpeg->waitForStarted(VERYLONGTIME);
-    if(!state)
+    if (!state)
     {
         QMessageBox::warning(this, "提示", "合并片段失败啦");
         resetState();
         return;
     }
     state = pFFmpeg->waitForFinished(VERYLONGTIME);
-    if(!state)
+    if (!state)
     {
         QMessageBox::warning(this, "提示", "合并片段失败啦");
         resetState();
@@ -200,7 +311,7 @@ void MainWindow::videoProcess()
     delete pFFmpeg;
     pFFmpeg = nullptr;
     QFile::remove(srcPath + '/' + "segList.txt");
-    for(int i=0; i<segmentNames.size(); i++)
+    for (int i = 0; i < segmentNames.size(); i++)
     {
         QFile::remove(segmentNames.at(i));
     }
@@ -218,7 +329,7 @@ void MainWindow::resetState()
     timeSlices.clear();
     srcStr = "";
     dstStr = "";
-    foreach(QPushButton* _btn, deleteBtns)
+    foreach (QPushButton * _btn, deleteBtns)
     {
         delete _btn;
     }
@@ -233,12 +344,12 @@ void MainWindow::loadVideo()
     currentFmtContext = avformat_alloc_context();
 
     result = processErrorMsg(avformat_open_input(&currentFmtContext, srcStr.toUtf8().data(), NULL, NULL));
-    if(result != 1)
+    if (result != 1)
     {
         return;
     }
     result = processErrorMsg(avformat_find_stream_info(currentFmtContext, NULL));
-    if(result != 1)
+    if (result != 1)
     {
         return;
     }
@@ -251,8 +362,8 @@ void MainWindow::loadVideo()
 void MainWindow::on_addSlice(QString startTimeStr, QString endTimeStr)
 {
     int64_t startTimeInt = str2duration(startTimeStr);
-    int64_t endTimeInt   = str2duration(endTimeStr);
-    if(startTimeInt == -1 or endTimeInt == -1)
+    int64_t endTimeInt = str2duration(endTimeStr);
+    if (startTimeInt == -1 or endTimeInt == -1)
     {
         QMessageBox::warning(this, "提示", "时间格式出错啦");
         return;
@@ -260,9 +371,9 @@ void MainWindow::on_addSlice(QString startTimeStr, QString endTimeStr)
     QPair<int64_t, int64_t> curSlice;
     curSlice.first = startTimeInt;
     curSlice.second = endTimeInt;
-    for(int i=0; i<timeSlices.count(); i++)
+    for (int i = 0; i < timeSlices.count(); i++)
     {
-        if(hasOverlap(timeSlices.at(i), curSlice))
+        if (hasOverlap(timeSlices.at(i), curSlice))
         {
             QMessageBox::warning(this, "提示", "当前添加的片段与已添加片段存在重复~");
             return;
@@ -277,7 +388,7 @@ void MainWindow::on_addSlice(QString startTimeStr, QString endTimeStr)
 
 void MainWindow::on_pushButton_3_clicked()
 {
-    if(0 == timeSlices.length())
+    if (0 == timeSlices.length())
     {
         QMessageBox::warning(this, "提示", "最少也要有一个视频片段哦~");
         return;
@@ -290,7 +401,7 @@ void MainWindow::on_pushButton_4_clicked()
     QString srcSuffix = srcStr.last(srcStr.length() - srcStr.lastIndexOf("."));
     QString filter = "视频文件(*" + srcSuffix + ");";
     dstStr = QFileDialog::getSaveFileName(this, "选择输出目录", "", filter);
-    if(dstStr == "")
+    if (dstStr == "")
     {
         QMessageBox::warning(this, "提示", "保存目录出错啦");
         return;

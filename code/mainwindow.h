@@ -8,7 +8,9 @@
 #include <QMessageBox>
 #include <QMimeData>
 #include <QProcess>
-extern "C"{
+
+extern "C"
+{
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libavutil/error.h>
@@ -18,7 +20,10 @@ extern "C"{
 #include "utils.h"
 
 QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
+namespace Ui
+{
+class MainWindow;
+}
 QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow
@@ -36,15 +41,15 @@ private slots:
     void on_pushButton_3_clicked();
     void on_pushButton_4_clicked();
     void delete_handler();
-    void dragEnterEvent(QDragEnterEvent* event);
-    void dropEvent(QDropEvent* event);
+    void dragEnterEvent(QDragEnterEvent *event);
+    void dropEvent(QDropEvent *event);
 
 private:
     Ui::MainWindow *ui;
-    AVFormatContext* currentFmtContext;
+    AVFormatContext *currentFmtContext;
     int64_t numOfRows;
     QList<QPair<int64_t, int64_t>> timeSlices;
-    QList<QPushButton*> deleteBtns;
+    QList<QPushButton *> deleteBtns;
     QString srcStr;
     QString dstStr;
 
@@ -55,4 +60,5 @@ private:
                       //1.拖拽文件
                       //2.通过文件选择框选择文件
 };
+
 #endif // MAINWINDOW_H

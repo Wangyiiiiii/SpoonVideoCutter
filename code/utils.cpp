@@ -28,11 +28,12 @@ int64_t str2duration(QString timeStr)
     static QRegularExpression reTimeStr(R"(\d{1,}:[0-5][0-9]:[0-5][0-9].\d{3})");
     QRegularExpressionMatch match = reTimeStr.match(timeStr);
 
-    if(!match.hasMatch())
+    if (!match.hasMatch())
     {
         rVal = -1;
         return rVal;
     }
+
     QStringList timePartList = timeStr.split(QChar(':'));
     rVal += timePartList.at(0).toInt() * 60 * 60 * 1000;
     rVal += timePartList.at(1).toInt() * 60 * 1000;
@@ -48,9 +49,10 @@ bool hasOverlap(QPair<int64_t, int64_t> segment1, QPair<int64_t, int64_t> segmen
     tempList << segment1.first << segment1.second << segment2.first << segment2.second;
     int64_t min = 0;
     int64_t max = 0;
+
     min = *(std::min_element(tempList.begin(), tempList.end()));
     max = *(std::max_element(tempList.begin(), tempList.end()));
-    if((max - min) < (segment1.second-segment1.first)+(segment2.second-segment2.first))
+    if ((max - min) < (segment1.second - segment1.first) + (segment2.second - segment2.first))
     {
         bRet = true;
     }
@@ -72,7 +74,7 @@ int processErrorMsg(int ret)
     {
         char errMsg[1024];
         av_strerror(ret, errMsg, 1024);
-        QMessageBox* errMsgBox = new QMessageBox();
+        QMessageBox *errMsgBox = new QMessageBox();
         errMsgBox->setText(errMsg);
         errMsgBox->exec();
         delete errMsgBox;
